@@ -61,7 +61,6 @@ h1 {
 
 .section h2 {
   margin-bottom: 20px;
-  font-weight: 600;
 }
 
 .grid {
@@ -74,18 +73,11 @@ h1 {
   background: #1A1A1A;
   padding: 20px;
   border-radius: 10px;
-  transition: 0.2s;
-}
-
-.card:hover {
-  background: #222;
-  transform: translateY(-3px);
 }
 
 .menu-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
 }
 
 .cta {
@@ -93,29 +85,13 @@ h1 {
   padding: 14px 24px;
   background: #D94F2A;
   color: white;
-  text-decoration: none;
   border-radius: 6px;
-  margin-top: 10px;
-  font-weight: 600;
   cursor: pointer;
-}
-
-.cta:hover {
-  background: #ff5c33;
 }
 
 .contact {
   opacity: 0.8;
   font-size: 14px;
-}
-
-.fade {
-  animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 </style>
@@ -143,10 +119,7 @@ h1 {
 
   <div class="section">
     <h2 id="menuTitle"></h2>
-
-    <button class="cta" onclick="updateMenu()">Update Menu</button>
-
-    <div class="grid" id="menu"></div>
+    <div class="grid" id="menu">Loading...</div>
   </div>
 
   <div class="section">
@@ -175,49 +148,34 @@ const content = {
   en: {
     tagline: "real food. zero friction.",
     aboutTitle: "About",
-    aboutText: "A fast kitchen built for real life. No waiting. No confusion. Just food done right.",
+    aboutText: "A fast kitchen built for real life.",
     menuTitle: "Menu",
     reservationTitle: "Reservation",
     reservationText: "Book your table in seconds.",
     reservationBtn: "Reserve now",
-    contactTitle: "Contact",
-    menu: [
-      ["Grilled Chicken Bowl", "12€"],
-      ["Hot Pan Noodles", "11€"],
-      ["Vegetable Stir Fry", "10€"]
-    ]
+    contactTitle: "Contact"
   },
 
   de: {
     tagline: "einfach essen. ohne warten.",
     aboutTitle: "Über uns",
-    aboutText: "Eine schnelle Küche für den Alltag. Kein Warten. Keine Umwege. Einfach gutes Essen.",
+    aboutText: "Eine schnelle Küche für den Alltag.",
     menuTitle: "Menü",
     reservationTitle: "Reservierung",
     reservationText: "Reservieren Sie in wenigen Sekunden.",
     reservationBtn: "Jetzt reservieren",
-    contactTitle: "Kontakt",
-    menu: [
-      ["Hähnchen Bowl", "12€"],
-      ["Hot Pan Nudeln", "11€"],
-      ["Gemüse Pfanne", "10€"]
-    ]
+    contactTitle: "Kontakt"
   },
 
   it: {
     tagline: "cibo vero. senza attesa.",
     aboutTitle: "Chi siamo",
-    aboutText: "Una cucina veloce per la vita reale. Niente attese. Solo buon cibo.",
+    aboutText: "Una cucina veloce per la vita reale.",
     menuTitle: "Menu",
     reservationTitle: "Prenotazione",
-    reservationText: "Prenota il tuo tavolo in pochi secondi.",
+    reservationText: "Prenota in pochi secondi.",
     reservationBtn: "Prenota ora",
-    contactTitle: "Contatto",
-    menu: [
-      ["Pollo alla griglia", "12€"],
-      ["Noodles Hot Pan", "11€"],
-      ["Verdure saltate", "10€"]
-    ]
+    contactTitle: "Contatto"
   }
 
 };
@@ -226,14 +184,13 @@ let currentLang = "en";
 
 function setLang(lang, el) {
   currentLang = lang;
-
   document.querySelectorAll(".lang").forEach(e => e.classList.remove("active"));
   el.classList.add("active");
-
-  render();
+  renderText();
+  loadMenu();
 }
 
-function render() {
+function renderText() {
   const data = content[currentLang];
 
   document.getElementById("tagline").innerText = data.tagline;
@@ -244,43 +201,40 @@ function render() {
   document.getElementById("reservationText").innerText = data.reservationText;
   document.getElementById("reservationBtn").innerText = data.reservationBtn;
   document.getElementById("contactTitle").innerText = data.contactTitle;
-
-  renderMenu(data.menu);
 }
 
-function renderMenu(menuData) {
-  const menuContainer = document.getElementById("menu");
-  menuContainer.innerHTML = "";
+async function loadMenu() {
+  try {
+    const res = await fetch("menu.json");
+    const data = await res.json();
 
-  menuData.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "card fade";
-    div.innerHTML = `
-      <div class="menu-item">
-        <span>${item[0]}</span>
-        <span>${item[1]}</span>
-      </div>
-    `;
-    menuContainer.appendChild(div);
-  });
-}
+    const menuContainer = document.getElementById("menu");
+    menuContainer.innerHTML = "";
 
-function updateMenu() {
-  const newMenu = [
-    ["Beef Hot Pan", "13€"],
-    ["Spicy Noodles", "11€"],
-    ["Tofu Bowl", "10€"]
-  ];
+    data[currentLang].forEach(item => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `
+        <div class="menu-item">
+          <span>${item.name}</span>
+          <span>${item.price}</span>
+        </div>
+      `;
+      menuContainer.appendChild(div);
+    });
 
-  content[currentLang].menu = newMenu;
-  render();
+  } catch {
+    document.getElementById("menu").innerText = "Menu unavailable";
+  }
 }
 
 function reserveNow() {
   document.getElementById("reservationBox").innerHTML = "<p>Table booked ✓</p>";
 }
 
-render();
+// INIT
+renderText();
+loadMenu();
 
 </script>
 
