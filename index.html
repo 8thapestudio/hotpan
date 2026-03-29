@@ -1,110 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HOT PAN</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOT PAN</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0E0E0E;
-      color: #F5F5F5;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 40px 20px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #0E0E0E;
+  color: #F5F5F5;
+}
 
-    h1 {
-      font-size: 64px;
-      margin-bottom: 10px;
-    }
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 60px 20px;
+}
 
-    .tagline {
-      color: #D94F2A;
-      font-size: 20px;
-      margin-bottom: 40px;
-    }
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-bottom: 20px;
+}
 
-    .section {
-      margin-bottom: 40px;
-    }
+.lang {
+  cursor: pointer;
+  opacity: 0.6;
+}
 
-    .menu-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
+.lang.active {
+  opacity: 1;
+  color: #D94F2A;
+}
 
-    .cta {
-      display: inline-block;
-      padding: 12px 20px;
-      background: #D94F2A;
-      color: white;
-      text-decoration: none;
-      margin-top: 20px;
-    }
+.hero {
+  margin-bottom: 80px;
+}
 
-    .cta:hover {
-      background: #ff5c33;
-    }
-  </style>
+h1 {
+  font-size: 72px;
+  margin: 0;
+  letter-spacing: -2px;
+}
+
+.tagline {
+  margin-top: 10px;
+  font-size: 20px;
+  color: #D94F2A;
+}
+
+.section {
+  margin-bottom: 60px;
+}
+
+.section h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #1A1A1A;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cta {
+  display: inline-block;
+  padding: 14px 24px;
+  background: #D94F2A;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.cta:hover {
+  background: #ff5c33;
+}
+
+.contact {
+  opacity: 0.8;
+  font-size: 14px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-  <h1>HOT PAN</h1>
-  <div class="tagline">fast. fresh. no waiting.</div>
+  <div class="topbar">
+    <span class="lang active" onclick="setLang('en')">EN</span>
+    <span class="lang" onclick="setLang('de')">DE</span>
+    <span class="lang" onclick="setLang('it')">IT</span>
+  </div>
 
-  <div class="section">
-    <h2>About</h2>
-    <p>
-      A small kitchen focused on speed, clarity and real food.
-      Built for people who want to eat well without waiting.
-    </p>
+  <div class="hero">
+    <h1>HOT PAN</h1>
+    <div class="tagline" id="tagline"></div>
   </div>
 
   <div class="section">
-    <h2>Menu</h2>
-
-    <div class="menu-item">
-      <span>Grilled Chicken Bowl</span>
-      <span>12€</span>
-    </div>
-
-    <div class="menu-item">
-      <span>Hot Pan Noodles</span>
-      <span>11€</span>
-    </div>
-
-    <div class="menu-item">
-      <span>Vegetable Stir Fry</span>
-      <span>10€</span>
-    </div>
-
+    <h2 id="aboutTitle"></h2>
+    <div class="card" id="aboutText"></div>
   </div>
 
   <div class="section">
-    <h2>Reservation</h2>
-    <a href="#" class="cta">Book a table</a>
+    <h2 id="menuTitle"></h2>
+    <div class="grid" id="menu"></div>
   </div>
 
   <div class="section">
-    <h2>Contact</h2>
-    <p>
+    <h2 id="reservationTitle"></h2>
+    <div class="card">
+      <p id="reservationText"></p>
+      <a href="#" class="cta" id="reservationBtn"></a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 id="contactTitle"></h2>
+    <div class="contact">
       Innsbruck, Austria<br>
       +43 000 000000<br>
       hello@hotpan.at
-    </p>
+    </div>
   </div>
 
 </div>
+
+<script>
+
+const content = {
+
+  en: {
+    tagline: "real food. zero friction.",
+    aboutTitle: "About",
+    aboutText: "A fast kitchen built for real life. No waiting. No confusion. Just food done right.",
+    menuTitle: "Menu",
+    reservationTitle: "Reservation",
+    reservationText: "Book your table in seconds.",
+    reservationBtn: "Reserve now",
+    contactTitle: "Contact",
+    menu: [
+      ["Grilled Chicken Bowl", "12€"],
+      ["Hot Pan Noodles", "11€"],
+      ["Vegetable Stir Fry", "10€"]
+    ]
+  },
+
+  de: {
+    tagline: "einfach essen. ohne warten.",
+    aboutTitle: "Über uns",
+    aboutText: "Eine schnelle Küche für den Alltag. Kein Warten. Keine Umwege. Einfach gutes Essen.",
+    menuTitle: "Menü",
+    reservationTitle: "Reservierung",
+    reservationText: "Reservieren Sie in wenigen Sekunden.",
+    reservationBtn: "Jetzt reservieren",
+    contactTitle: "Kontakt",
+    menu: [
+      ["Hähnchen Bowl", "12€"],
+      ["Hot Pan Nudeln", "11€"],
+      ["Gemüse Pfanne", "10€"]
+    ]
+  },
+
+  it: {
+    tagline: "cibo vero. senza attesa.",
+    aboutTitle: "Chi siamo",
+    aboutText: "Una cucina veloce per la vita reale. Niente attese. Solo buon cibo.",
+    menuTitle: "Menu",
+    reservationTitle: "Prenotazione",
+    reservationText: "Prenota il tuo tavolo in pochi secondi.",
+    reservationBtn: "Prenota ora",
+    contactTitle: "Contatto",
+    menu: [
+      ["Pollo alla griglia", "12€"],
+      ["Noodles Hot Pan", "11€"],
+      ["Verdure saltate", "10€"]
+    ]
+  }
+
+};
+
+function setLang(lang) {
+  document.querySelectorAll(".lang").forEach(el => el.classList.remove("active"));
+  event.target.classList.add("active");
+
+  const data = content[lang];
+
+  document.getElementById("tagline").innerText = data.tagline;
+  document.getElementById("aboutTitle").innerText = data.aboutTitle;
+  document.getElementById("aboutText").innerText = data.aboutText;
+  document.getElementById("menuTitle").innerText = data.menuTitle;
+  document.getElementById("reservationTitle").innerText = data.reservationTitle;
+  document.getElementById("reservationText").innerText = data.reservationText;
+  document.getElementById("reservationBtn").innerText = data.reservationBtn;
+  document.getElementById("contactTitle").innerText = data.contactTitle;
+
+  const menuContainer = document.getElementById("menu");
+  menuContainer.innerHTML = "";
+
+  data.menu.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="menu-item">
+        <span>${item[0]}</span>
+        <span>${item[1]}</span>
+      </div>
+    `;
+    menuContainer.appendChild(div);
+  });
+}
+
+// default load
+setLang("en");
+
+</script>
 
 </body>
 </html>
