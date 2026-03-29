@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -73,6 +74,12 @@ h1 {
   background: #1A1A1A;
   padding: 20px;
   border-radius: 10px;
+  transition: 0.2s;
+}
+
+.card:hover {
+  background: #222;
+  transform: translateY(-3px);
 }
 
 .menu-item {
@@ -90,6 +97,7 @@ h1 {
   border-radius: 6px;
   margin-top: 10px;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .cta:hover {
@@ -100,6 +108,16 @@ h1 {
   opacity: 0.8;
   font-size: 14px;
 }
+
+.fade {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 </style>
 </head>
 
@@ -108,9 +126,9 @@ h1 {
 <div class="container">
 
   <div class="topbar">
-    <span class="lang active" onclick="setLang('en')">EN</span>
-    <span class="lang" onclick="setLang('de')">DE</span>
-    <span class="lang" onclick="setLang('it')">IT</span>
+    <span class="lang active" onclick="setLang('en', this)">EN</span>
+    <span class="lang" onclick="setLang('de', this)">DE</span>
+    <span class="lang" onclick="setLang('it', this)">IT</span>
   </div>
 
   <div class="hero">
@@ -125,14 +143,17 @@ h1 {
 
   <div class="section">
     <h2 id="menuTitle"></h2>
+
+    <button class="cta" onclick="updateMenu()">Update Menu</button>
+
     <div class="grid" id="menu"></div>
   </div>
 
   <div class="section">
     <h2 id="reservationTitle"></h2>
-    <div class="card">
+    <div class="card" id="reservationBox">
       <p id="reservationText"></p>
-      <a href="#" class="cta" id="reservationBtn"></a>
+      <div class="cta" onclick="reserveNow()" id="reservationBtn"></div>
     </div>
   </div>
 
@@ -201,11 +222,19 @@ const content = {
 
 };
 
-function setLang(lang) {
-  document.querySelectorAll(".lang").forEach(el => el.classList.remove("active"));
-  event.target.classList.add("active");
+let currentLang = "en";
 
-  const data = content[lang];
+function setLang(lang, el) {
+  currentLang = lang;
+
+  document.querySelectorAll(".lang").forEach(e => e.classList.remove("active"));
+  el.classList.add("active");
+
+  render();
+}
+
+function render() {
+  const data = content[currentLang];
 
   document.getElementById("tagline").innerText = data.tagline;
   document.getElementById("aboutTitle").innerText = data.aboutTitle;
@@ -216,12 +245,16 @@ function setLang(lang) {
   document.getElementById("reservationBtn").innerText = data.reservationBtn;
   document.getElementById("contactTitle").innerText = data.contactTitle;
 
+  renderMenu(data.menu);
+}
+
+function renderMenu(menuData) {
   const menuContainer = document.getElementById("menu");
   menuContainer.innerHTML = "";
 
-  data.menu.forEach(item => {
+  menuData.forEach(item => {
     const div = document.createElement("div");
-    div.className = "card";
+    div.className = "card fade";
     div.innerHTML = `
       <div class="menu-item">
         <span>${item[0]}</span>
@@ -232,8 +265,22 @@ function setLang(lang) {
   });
 }
 
-// default load
-setLang("en");
+function updateMenu() {
+  const newMenu = [
+    ["Beef Hot Pan", "13€"],
+    ["Spicy Noodles", "11€"],
+    ["Tofu Bowl", "10€"]
+  ];
+
+  content[currentLang].menu = newMenu;
+  render();
+}
+
+function reserveNow() {
+  document.getElementById("reservationBox").innerHTML = "<p>Table booked ✓</p>";
+}
+
+render();
 
 </script>
 
