@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -58,6 +59,10 @@ h1 {
   margin-bottom: 60px;
 }
 
+.section h2 {
+  margin-bottom: 20px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -87,13 +92,17 @@ h1 {
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  margin-bottom: 15px;
+}
+
+.cta:hover {
+  background: #ff5c33;
 }
 
 .contact {
   opacity: 0.8;
   font-size: 14px;
 }
+
 </style>
 </head>
 
@@ -119,10 +128,7 @@ h1 {
 
   <div class="section">
     <h2 id="menuTitle"></h2>
-
-    <div class="cta" onclick="generateMenu()">Generate Menu (AI)</div>
-
-    <div class="grid" id="menu"></div>
+    <div class="grid" id="menu">Loading...</div>
   </div>
 
   <div class="section">
@@ -146,51 +152,56 @@ h1 {
 
 <script>
 
-let currentLang = "en";
-
 const content = {
+
   en: {
     tagline: "real food. zero friction.",
     aboutTitle: "About",
-    aboutText: "A fast kitchen built for real life.",
+    aboutText: "A fast kitchen built for real life. No waiting. No confusion. Just food done right.",
     menuTitle: "Menu",
     reservationTitle: "Reservation",
     reservationText: "Book your table in seconds.",
     reservationBtn: "Reserve now",
     contactTitle: "Contact"
   },
+
   de: {
     tagline: "einfach essen. ohne warten.",
     aboutTitle: "Über uns",
-    aboutText: "Eine schnelle Küche für den Alltag.",
+    aboutText: "Eine schnelle Küche für den Alltag. Kein Warten. Keine Umwege. Einfach gutes Essen.",
     menuTitle: "Menü",
     reservationTitle: "Reservierung",
     reservationText: "Reservieren Sie in wenigen Sekunden.",
     reservationBtn: "Jetzt reservieren",
     contactTitle: "Kontakt"
   },
+
   it: {
     tagline: "cibo vero. senza attesa.",
     aboutTitle: "Chi siamo",
-    aboutText: "Una cucina veloce per la vita reale.",
+    aboutText: "Una cucina veloce per la vita reale. Niente attese. Solo buon cibo.",
     menuTitle: "Menu",
     reservationTitle: "Prenotazione",
-    reservationText: "Prenota in pochi secondi.",
+    reservationText: "Prenota il tuo tavolo in pochi secondi.",
     reservationBtn: "Prenota ora",
     contactTitle: "Contatto"
   }
+
 };
+
+let currentLang = "en";
 
 function setLang(lang, el) {
   currentLang = lang;
   document.querySelectorAll(".lang").forEach(e => e.classList.remove("active"));
   el.classList.add("active");
   renderText();
-  generateMenu();
+  loadMenu();
 }
 
 function renderText() {
   const data = content[currentLang];
+
   document.getElementById("tagline").innerText = data.tagline;
   document.getElementById("aboutTitle").innerText = data.aboutTitle;
   document.getElementById("aboutText").innerText = data.aboutText;
@@ -201,52 +212,38 @@ function renderText() {
   document.getElementById("contactTitle").innerText = data.contactTitle;
 }
 
-function generateMenu() {
+async function loadMenu() {
+  try {
+    const res = await fetch("menu.json");
+    const data = await res.json();
 
-  const base = [
-    ["Chicken", "Bowl"],
-    ["Beef", "Noodles"],
-    ["Tofu", "Stir Fry"],
-    ["Spicy", "Rice"],
-    ["Garlic", "Pan"],
-    ["Chili", "Mix"]
-  ];
+    const menuContainer = document.getElementById("menu");
+    menuContainer.innerHTML = "";
 
-  const prices = ["10€","11€","12€","13€"];
+    data[currentLang].forEach(item => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `
+        <div class="menu-item">
+          <span>${item.name}</span>
+          <span>${item.price}</span>
+        </div>
+      `;
+      menuContainer.appendChild(div);
+    });
 
-  let menu = [];
-
-  for (let i = 0; i < 3; i++) {
-    const a = base[Math.floor(Math.random() * base.length)];
-    const name = a[0] + " " + a[1];
-    const price = prices[Math.floor(Math.random() * prices.length)];
-
-    menu.push({ name, price });
+  } catch {
+    document.getElementById("menu").innerText = "Menu unavailable";
   }
-
-  const container = document.getElementById("menu");
-  container.innerHTML = "";
-
-  menu.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <div class="menu-item">
-        <span>${item.name}</span>
-        <span>${item.price}</span>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-
 }
 
 function reserveNow() {
   document.getElementById("reservationBox").innerHTML = "<p>Table booked ✓</p>";
 }
 
+// INIT
 renderText();
-generateMenu();
+loadMenu();
 
 </script>
 
