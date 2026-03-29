@@ -1,17 +1,20 @@
 {
   "en": [
-    { "name": "Grilled Chicken Bowl", "price": "12€" },
-    { "name": "Hot Pan Noodles", "price": "11€" },
-    { "name": "Vegetable Stir Fry", "price": "10€" }
+    {
+      "name": "chicken bowl",
+      "price": "11€"
+    }
   ],
   "de": [
-    { "name": "Hähnchen Bowl", "price": "12€" },
-    { "name": "Hot Pan Nudeln", "price": "11€" },
-    { "name": "Gemüse Pfanne", "price": "10€" }
+    {
+      "name": "chicken bowl Pfanne",
+      "price": "11€"
+    }
   ],
   "it": [
-    { "name": "Pollo alla griglia", "price": "12€" },
-    { "name": "Noodles Hot Pan", "price": "11€" },
-    { "name": "Verdure saltate", "price": "10€" }
+    {
+      "name": "chicken bowl Padella",
+      "price": "11€"
+    }
   ]
 }
