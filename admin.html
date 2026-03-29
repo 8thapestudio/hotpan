@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOT PAN – AI Admin</title>
+<title>HOT PAN – Admin</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -16,59 +16,77 @@ body {
 }
 
 .container {
-  max-width:900px;
+  max-width:1000px;
   margin:auto;
-  padding:60px 20px;
+  padding:40px 20px;
 }
 
 h1 {
   margin-bottom:30px;
 }
 
-.grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-}
-
-input {
-  width:100%;
-  padding:14px;
-  background:#1A1A1A;
-  border:none;
-  color:white;
-  border-radius:6px;
-}
-
 .cta {
-  padding:14px;
   background:#D94F2A;
-  color:white;
-  text-align:center;
+  padding:12px 20px;
   border-radius:6px;
   cursor:pointer;
-  margin-top:20px;
+  display:inline-block;
+  margin-bottom:20px;
 }
 
 .card {
   background:#1A1A1A;
   padding:20px;
   border-radius:10px;
-  margin-top:20px;
+  margin-bottom:20px;
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  background:#111;
+  border:none;
+  color:white;
+}
+
+.row {
+  display:flex;
+  gap:10px;
 }
 
 .small {
-  opacity:.6;
   font-size:12px;
+  opacity:.6;
+}
+
+.toggle {
+  cursor:pointer;
+  padding:6px 10px;
+  border:1px solid #555;
+  border-radius:6px;
+  margin-right:10px;
+}
+
+.toggle.active {
+  background:#D94F2A;
+}
+
+.price-box {
+  display:none;
+  margin-top:10px;
+}
+
+.price-box.active {
+  display:block;
 }
 
 textarea {
   width:100%;
-  height:220px;
-  margin-top:20px;
+  height:200px;
   background:#111;
   color:white;
-  border:none;
+  margin-top:20px;
   padding:10px;
   font-family:monospace;
 }
@@ -79,78 +97,146 @@ textarea {
 
 <div class="container">
 
-<h1>HOT PAN – AI Menu Builder</h1>
+<h1>HOT PAN – Menu Builder</h1>
 
-<div class="grid">
-  <input id="name" placeholder="Dish name (any language)">
-  <input id="style" placeholder="Style (asian / healthy / fast)">
-</div>
+<div class="cta" onclick="addDish()">+ Add dish</div>
 
-<input id="ingredients" placeholder="Ingredients (optional)">
+<div id="dishes"></div>
 
-<div class="cta" onclick="generate()">Generate menu</div>
+<div class="cta" onclick="exportJSON()">Export menu.json</div>
 
-<div id="result"></div>
-
-<h3>menu.json</h3>
 <textarea id="output"></textarea>
-
-<div class="small">
-Copy → paste into menu.json → commit → refresh web
-</div>
 
 </div>
 
 <script>
 
-function translateName(name, lang){
-  const dict = {
-    de: "Pfanne",
-    it: "Padella"
+let dishes = [];
+
+function addDish(){
+
+  const id = Date.now();
+
+  const dish = {
+    id,
+    name:"",
+    ingredients:"",
+    price:12,
+    customPrice:"",
+    max:10,
+    reserve:false,
+    soldout:false
   };
-  return name + " " + (dict[lang] || "");
+
+  dishes.push(dish);
+  render();
 }
 
-function generate(){
+function toggle(id, key){
+  const d = dishes.find(x=>x.id===id);
+  d[key] = !d[key];
+  render();
+}
 
-  const name = document.getElementById("name").value || "Chicken Bowl";
+function render(){
 
-  const base = Math.floor(Math.random()*3)+10;
+  const container = document.getElementById("dishes");
+  container.innerHTML = "";
 
-  const prices = {
-    low: base + "€",
-    mid: (base+1) + "€",
-    high: (base+2) + "€"
-  };
-
-  const menu = {
-    en: [{ name: name, price: prices.mid }],
-    de: [{ name: translateName(name,"de"), price: prices.mid }],
-    it: [{ name: translateName(name,"it"), price: prices.mid }]
-  };
-
-  // preview UI
-  const res = document.getElementById("result");
-  res.innerHTML = "";
-
-  Object.keys(menu).forEach(lang=>{
-    const item = menu[lang][0];
+  dishes.forEach(d=>{
 
     const div = document.createElement("div");
     div.className = "card";
+
     div.innerHTML = `
-      <b>${lang.toUpperCase()}</b><br>
-      ${item.name}<br>
-      <span class="small">
-        low: ${prices.low} | recommended: ${prices.mid} | high: ${prices.high}
-      </span>
+
+    <input placeholder="Dish name (any language)" 
+      value="${d.name}" 
+      onchange="update(${d.id},'name',this.value)">
+
+    <input placeholder="Ingredients" 
+      value="${d.ingredients}" 
+      onchange="update(${d.id},'ingredients',this.value)">
+
+    <div class="row">
+      <input type="number" placeholder="Max portions"
+        value="${d.max}"
+        onchange="update(${d.id},'max',this.value)">
+    </div>
+
+    <div class="small">Price</div>
+
+    <div class="row">
+      <div class="toggle" onclick="setPriceMode(${d.id},'low')">Low</div>
+      <div class="toggle active" onclick="setPriceMode(${d.id},'mid')">Recommended</div>
+      <div class="toggle" onclick="setPriceMode(${d.id},'high')">High</div>
+      <div class="toggle" onclick="toggleCustom(${d.id})">Custom</div>
+    </div>
+
+    <div class="price-box ${d.customPrice ? 'active' : ''}">
+      <input placeholder="Custom price €" 
+        value="${d.customPrice}" 
+        onchange="update(${d.id},'customPrice',this.value)">
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div class="toggle ${d.reserve?'active':''}" onclick="toggle(${d.id},'reserve')">Reservation</div>
+      <div class="toggle ${d.soldout?'active':''}" onclick="toggle(${d.id},'soldout')">Sold out</div>
+    </div>
+
+    <div class="small">
+      AI will generate EN / DE / IT automatically
+    </div>
+
     `;
-    res.appendChild(div);
+
+    container.appendChild(div);
+  });
+}
+
+function update(id,key,val){
+  const d = dishes.find(x=>x.id===id);
+  d[key]=val;
+}
+
+function toggleCustom(id){
+  const d = dishes.find(x=>x.id===id);
+  d.customPrice = d.customPrice ? "" : "12";
+  render();
+}
+
+function setPriceMode(id,mode){
+  const d = dishes.find(x=>x.id===id);
+
+  const base = Math.floor(Math.random()*3)+10;
+
+  if(mode==="low") d.price = base;
+  if(mode==="mid") d.price = base+1;
+  if(mode==="high") d.price = base+2;
+}
+
+function translate(name,lang){
+  if(lang==="de") return name+" Pfanne";
+  if(lang==="it") return name+" Padella";
+  return name;
+}
+
+function exportJSON(){
+
+  const out = { en:[], de:[], it:[] };
+
+  dishes.forEach(d=>{
+
+    const price = d.customPrice || d.price+"€";
+
+    out.en.push({ name:d.name, price });
+    out.de.push({ name:translate(d.name,"de"), price });
+    out.it.push({ name:translate(d.name,"it"), price });
+
   });
 
-  // export JSON
   document.getElementById("output").value =
-    JSON.stringify(menu, null, 2);
+    JSON.stringify(out,null,2);
 }
 
 </script>
