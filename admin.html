@@ -16,39 +16,60 @@ body {
 }
 
 .container {
-  max-width:800px;
+  max-width:900px;
   margin:auto;
   padding:60px 20px;
 }
 
-input, textarea {
+h1 {
+  margin-bottom:30px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+input {
   width:100%;
-  padding:12px;
-  margin-bottom:15px;
+  padding:14px;
   background:#1A1A1A;
   border:none;
   color:white;
+  border-radius:6px;
 }
 
 .cta {
   padding:14px;
   background:#D94F2A;
   color:white;
-  cursor:pointer;
-  border-radius:6px;
-  margin-bottom:20px;
   text-align:center;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:20px;
 }
 
 .card {
   background:#1A1A1A;
-  padding:15px;
-  margin-bottom:10px;
+  padding:20px;
   border-radius:10px;
+  margin-top:20px;
+}
+
+.small {
+  opacity:.6;
+  font-size:12px;
 }
 
 textarea {
-  height:200px;
+  width:100%;
+  height:220px;
+  margin-top:20px;
+  background:#111;
+  color:white;
+  border:none;
+  padding:10px;
   font-family:monospace;
 }
 </style>
@@ -60,55 +81,76 @@ textarea {
 
 <h1>HOT PAN – AI Menu Builder</h1>
 
-<input id="name" placeholder="Dish name (any language)">
+<div class="grid">
+  <input id="name" placeholder="Dish name (any language)">
+  <input id="style" placeholder="Style (asian / healthy / fast)">
+</div>
+
 <input id="ingredients" placeholder="Ingredients (optional)">
-<input id="style" placeholder="Style (e.g. asian / healthy / fast)">
 
-<div class="cta" onclick="generate()">Generate with AI</div>
+<div class="cta" onclick="generate()">Generate menu</div>
 
-<div id="preview"></div>
+<div id="result"></div>
 
-<h3>menu.json output</h3>
+<h3>menu.json</h3>
 <textarea id="output"></textarea>
+
+<div class="small">
+Copy → paste into menu.json → commit → refresh web
+</div>
 
 </div>
 
 <script>
 
-function fakeTranslate(name, lang){
-  const map = {
+function translateName(name, lang){
+  const dict = {
     de: "Pfanne",
     it: "Padella"
   };
-  return name + " " + (map[lang] || "");
+  return name + " " + (dict[lang] || "");
 }
 
 function generate(){
 
   const name = document.getElementById("name").value || "Chicken Bowl";
 
-  // fake AI pricing logic
-  const basePrice = Math.floor(Math.random()*3)+10;
+  const base = Math.floor(Math.random()*3)+10;
 
-  const menu = {
-    en: [{ name: name, price: basePrice+"€" }],
-    de: [{ name: fakeTranslate(name,"de"), price: basePrice+"€" }],
-    it: [{ name: fakeTranslate(name,"it"), price: basePrice+"€" }]
+  const prices = {
+    low: base + "€",
+    mid: (base+1) + "€",
+    high: (base+2) + "€"
   };
 
-  // preview
-  const preview = document.getElementById("preview");
-  preview.innerHTML = "";
+  const menu = {
+    en: [{ name: name, price: prices.mid }],
+    de: [{ name: translateName(name,"de"), price: prices.mid }],
+    it: [{ name: translateName(name,"it"), price: prices.mid }]
+  };
+
+  // preview UI
+  const res = document.getElementById("result");
+  res.innerHTML = "";
 
   Object.keys(menu).forEach(lang=>{
+    const item = menu[lang][0];
+
     const div = document.createElement("div");
-    div.className="card";
-    div.innerHTML = `<b>${lang.toUpperCase()}</b><br>${menu[lang][0].name} — ${menu[lang][0].price}`;
-    preview.appendChild(div);
+    div.className = "card";
+    div.innerHTML = `
+      <b>${lang.toUpperCase()}</b><br>
+      ${item.name}<br>
+      <span class="small">
+        low: ${prices.low} | recommended: ${prices.mid} | high: ${prices.high}
+      </span>
+    `;
+    res.appendChild(div);
   });
 
-  // output JSON
-  document.getElementById("output").value = JSON.stringify(menu, null, 2);
+  // export JSON
+  document.getElementById("output").value =
+    JSON.stringify(menu, null, 2);
 }
 
 </script>
