@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -59,10 +58,6 @@ h1 {
   margin-bottom: 60px;
 }
 
-.section h2 {
-  margin-bottom: 20px;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -73,6 +68,11 @@ h1 {
   background: #1A1A1A;
   padding: 20px;
   border-radius: 10px;
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
 }
 
 .menu-item {
@@ -87,13 +87,13 @@ h1 {
   color: white;
   border-radius: 6px;
   cursor: pointer;
+  margin-bottom: 15px;
 }
 
 .contact {
   opacity: 0.8;
   font-size: 14px;
 }
-
 </style>
 </head>
 
@@ -119,7 +119,10 @@ h1 {
 
   <div class="section">
     <h2 id="menuTitle"></h2>
-    <div class="grid" id="menu">Loading...</div>
+
+    <div class="cta" onclick="generateMenu()">Generate Menu (AI)</div>
+
+    <div class="grid" id="menu"></div>
   </div>
 
   <div class="section">
@@ -143,8 +146,9 @@ h1 {
 
 <script>
 
-const content = {
+let currentLang = "en";
 
+const content = {
   en: {
     tagline: "real food. zero friction.",
     aboutTitle: "About",
@@ -155,7 +159,6 @@ const content = {
     reservationBtn: "Reserve now",
     contactTitle: "Contact"
   },
-
   de: {
     tagline: "einfach essen. ohne warten.",
     aboutTitle: "Über uns",
@@ -166,7 +169,6 @@ const content = {
     reservationBtn: "Jetzt reservieren",
     contactTitle: "Kontakt"
   },
-
   it: {
     tagline: "cibo vero. senza attesa.",
     aboutTitle: "Chi siamo",
@@ -177,22 +179,18 @@ const content = {
     reservationBtn: "Prenota ora",
     contactTitle: "Contatto"
   }
-
 };
-
-let currentLang = "en";
 
 function setLang(lang, el) {
   currentLang = lang;
   document.querySelectorAll(".lang").forEach(e => e.classList.remove("active"));
   el.classList.add("active");
   renderText();
-  loadMenu();
+  generateMenu();
 }
 
 function renderText() {
   const data = content[currentLang];
-
   document.getElementById("tagline").innerText = data.tagline;
   document.getElementById("aboutTitle").innerText = data.aboutTitle;
   document.getElementById("aboutText").innerText = data.aboutText;
@@ -203,38 +201,52 @@ function renderText() {
   document.getElementById("contactTitle").innerText = data.contactTitle;
 }
 
-async function loadMenu() {
-  try {
-    const res = await fetch("menu.json");
-    const data = await res.json();
+function generateMenu() {
 
-    const menuContainer = document.getElementById("menu");
-    menuContainer.innerHTML = "";
+  const base = [
+    ["Chicken", "Bowl"],
+    ["Beef", "Noodles"],
+    ["Tofu", "Stir Fry"],
+    ["Spicy", "Rice"],
+    ["Garlic", "Pan"],
+    ["Chili", "Mix"]
+  ];
 
-    data[currentLang].forEach(item => {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `
-        <div class="menu-item">
-          <span>${item.name}</span>
-          <span>${item.price}</span>
-        </div>
-      `;
-      menuContainer.appendChild(div);
-    });
+  const prices = ["10€","11€","12€","13€"];
 
-  } catch {
-    document.getElementById("menu").innerText = "Menu unavailable";
+  let menu = [];
+
+  for (let i = 0; i < 3; i++) {
+    const a = base[Math.floor(Math.random() * base.length)];
+    const name = a[0] + " " + a[1];
+    const price = prices[Math.floor(Math.random() * prices.length)];
+
+    menu.push({ name, price });
   }
+
+  const container = document.getElementById("menu");
+  container.innerHTML = "";
+
+  menu.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="menu-item">
+        <span>${item.name}</span>
+        <span>${item.price}</span>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
 }
 
 function reserveNow() {
   document.getElementById("reservationBox").innerHTML = "<p>Table booked ✓</p>";
 }
 
-// INIT
 renderText();
-loadMenu();
+generateMenu();
 
 </script>
 
