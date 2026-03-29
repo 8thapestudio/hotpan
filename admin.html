@@ -3,43 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOT PAN – Admin</title>
+<title>HOT PAN – AI Admin</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: #0E0E0E;
-  color: #F5F5F5;
+  margin:0;
+  font-family:Inter;
+  background:#0E0E0E;
+  color:#F5F5F5;
 }
 
 .container {
-  max-width: 800px;
-  margin: auto;
-  padding: 60px 20px;
+  max-width:800px;
+  margin:auto;
+  padding:60px 20px;
 }
 
-h1 {
-  margin-bottom: 20px;
+input, textarea {
+  width:100%;
+  padding:12px;
+  margin-bottom:15px;
+  background:#1A1A1A;
+  border:none;
+  color:white;
 }
 
 .cta {
-  display: inline-block;
-  padding: 14px 24px;
-  background: #D94F2A;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-bottom: 20px;
+  padding:14px;
+  background:#D94F2A;
+  color:white;
+  cursor:pointer;
+  border-radius:6px;
+  margin-bottom:20px;
+  text-align:center;
 }
 
 .card {
-  background: #1A1A1A;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 15px;
+  background:#1A1A1A;
+  padding:15px;
+  margin-bottom:10px;
+  border-radius:10px;
+}
+
+textarea {
+  height:200px;
+  font-family:monospace;
 }
 </style>
 </head>
@@ -48,49 +58,57 @@ h1 {
 
 <div class="container">
 
-  <h1>HOT PAN – Admin</h1>
+<h1>HOT PAN – AI Menu Builder</h1>
 
-  <div class="cta" onclick="generateMenu()">Generate Menu (AI)</div>
+<input id="name" placeholder="Dish name (any language)">
+<input id="ingredients" placeholder="Ingredients (optional)">
+<input id="style" placeholder="Style (e.g. asian / healthy / fast)">
 
-  <div id="menu"></div>
+<div class="cta" onclick="generate()">Generate with AI</div>
+
+<div id="preview"></div>
+
+<h3>menu.json output</h3>
+<textarea id="output"></textarea>
 
 </div>
 
 <script>
 
-function generateMenu() {
+function fakeTranslate(name, lang){
+  const map = {
+    de: "Pfanne",
+    it: "Padella"
+  };
+  return name + " " + (map[lang] || "");
+}
 
-  const base = [
-    ["Chicken", "Bowl"],
-    ["Beef", "Noodles"],
-    ["Tofu", "Stir Fry"],
-    ["Spicy", "Rice"],
-    ["Garlic", "Pan"],
-    ["Chili", "Mix"]
-  ];
+function generate(){
 
-  const prices = ["10€","11€","12€","13€"];
+  const name = document.getElementById("name").value || "Chicken Bowl";
 
-  let menu = [];
+  // fake AI pricing logic
+  const basePrice = Math.floor(Math.random()*3)+10;
 
-  for (let i = 0; i < 3; i++) {
-    const a = base[Math.floor(Math.random() * base.length)];
-    const name = a[0] + " " + a[1];
-    const price = prices[Math.floor(Math.random() * prices.length)];
+  const menu = {
+    en: [{ name: name, price: basePrice+"€" }],
+    de: [{ name: fakeTranslate(name,"de"), price: basePrice+"€" }],
+    it: [{ name: fakeTranslate(name,"it"), price: basePrice+"€" }]
+  };
 
-    menu.push({ name, price });
-  }
+  // preview
+  const preview = document.getElementById("preview");
+  preview.innerHTML = "";
 
-  const container = document.getElementById("menu");
-  container.innerHTML = "";
-
-  menu.forEach(item => {
+  Object.keys(menu).forEach(lang=>{
     const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `${item.name} — ${item.price}`;
-    container.appendChild(div);
+    div.className="card";
+    div.innerHTML = `<b>${lang.toUpperCase()}</b><br>${menu[lang][0].name} — ${menu[lang][0].price}`;
+    preview.appendChild(div);
   });
 
+  // output JSON
+  document.getElementById("output").value = JSON.stringify(menu, null, 2);
 }
 
 </script>
